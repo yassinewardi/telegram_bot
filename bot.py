@@ -20,6 +20,7 @@ from config import (
     CONTENT_TYPES,
     BUTTON_TEXTS,
     MESSAGES,
+    WATCH_URL,
     States
 )
 
@@ -138,9 +139,11 @@ async def get_movie_recommendation(update: Update, context: ContextTypes.DEFAULT
         
         # Get recommendation from TMDb
         content_type = context.user_data['content_type']
+        interface_lang = context.user_data['interface_language']
+        
         params = {
             'api_key': TMDB_API_KEY,
-            'language': context.user_data['movie_language'],
+            'language': interface_lang,  # Use interface language for content description
             'with_genres': context.user_data['genre'],
             'first_air_date.gte' if content_type == 'tv' else 'primary_release_date.gte': f"{start_year}-01-01",
             'first_air_date.lte' if content_type == 'tv' else 'primary_release_date.lte': f"{end_year}-12-31",
@@ -171,25 +174,26 @@ async def get_movie_recommendation(update: Update, context: ContextTypes.DEFAULT
 📝 {item['overview']}
 """
         
-        if poster_url:
-            await update.message.reply_photo(
-                photo=poster_url,
-                caption=recommendation_text
-            )
-        else:
-            await update.message.reply_text(recommendation_text)
-        
-        # Add buttons for next actions
+        # Create inline keyboard with watch button
+        watch_url = WATCH_URL.format(title=title)
         keyboard = [
+            [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["watch_now"], url=watch_url)],
             [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["get_another"], callback_data="another_similar")],
             [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["start_over"], callback_data="start_over")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await update.message.reply_text(
-            MESSAGES[interface_lang]["what_next"],
-            reply_markup=reply_markup
-        )
+        if poster_url:
+            await update.message.reply_photo(
+                photo=poster_url,
+                caption=recommendation_text,
+                reply_markup=reply_markup
+            )
+        else:
+            await update.message.reply_text(
+                recommendation_text,
+                reply_markup=reply_markup
+            )
         
         return States.AWAITING_RECOMMENDATION
         
@@ -216,7 +220,7 @@ async def another_similar(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     content_type = prefs['content_type']
     params = {
         'api_key': TMDB_API_KEY,
-        'language': prefs['language'],
+        'language': interface_lang,  # Use interface language for content description
         'with_genres': prefs['genre'],
         'first_air_date.gte' if content_type == 'tv' else 'primary_release_date.gte': f"{prefs['year_range'][0]}-01-01",
         'first_air_date.lte' if content_type == 'tv' else 'primary_release_date.lte': f"{prefs['year_range'][1]}-12-31",
@@ -253,25 +257,26 @@ async def another_similar(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 📝 {item['overview']}
 """
     
-    if poster_url:
-        await query.message.reply_photo(
-            photo=poster_url,
-            caption=recommendation_text
-        )
-    else:
-        await query.message.reply_text(recommendation_text)
-    
-    # Add buttons for next actions
+    # Create inline keyboard with watch button
+    watch_url = WATCH_URL.format(title=title)
     keyboard = [
+        [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["watch_now"], url=watch_url)],
         [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["get_another"], callback_data="another_similar")],
         [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["start_over"], callback_data="start_over")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await query.message.reply_text(
-        MESSAGES[interface_lang]["what_next"],
-        reply_markup=reply_markup
-    )
+    if poster_url:
+        await query.message.reply_photo(
+            photo=poster_url,
+            caption=recommendation_text,
+            reply_markup=reply_markup
+        )
+    else:
+        await query.message.reply_text(
+            recommendation_text,
+            reply_markup=reply_markup
+        )
     
     return States.AWAITING_RECOMMENDATION
 
