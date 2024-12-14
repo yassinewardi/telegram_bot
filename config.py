@@ -175,17 +175,23 @@ TV_GENRES: Dict[str, Dict[str, int]] = {
 BUTTON_TEXTS = {
     "en": {
         "get_another": "Get Another Similar",
-        "start_over": "Start Over"
+        "start_over": "Start Over",
+        "watch_now": "🎬 Watch Now"
     },
     "ar": {
         "get_another": "احصل على توصية مشابهة",
-        "start_over": "ابدأ من جديد"
+        "start_over": "ابدأ من جديد",
+        "watch_now": "🎬 شاهد الآن"
     },
     "es": {
         "get_another": "Obtener Otro Similar",
-        "start_over": "Empezar de Nuevo"
+        "start_over": "Empezar de Nuevo",
+        "watch_now": "🎬 Ver Ahora"
     }
 }
+
+# URLs
+WATCH_URL = "https://h5.aoneroom.com/search?keyword={title}"
 
 # Messages
 MESSAGES = {
