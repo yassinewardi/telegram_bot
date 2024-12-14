@@ -33,13 +33,11 @@ logger = logging.getLogger(__name__)
 # User data storage (In production, use a proper database)
 user_preferences = {}
 
-def create_watch_url(title: str) -> str:
+def create_watch_url(item: dict) -> str:
     """Create a watch URL for the movie/show."""
-    # Convert title to lowercase and replace spaces with hyphens
-    slug = title.lower().replace(' ', '-')
-    # Remove any special characters
-    slug = ''.join(c for c in slug if c.isalnum() or c == '-')
-    return WATCH_URL.format(slug=slug)
+    # Get TMDb ID from the item
+    tmdb_id = item.get('id')
+    return WATCH_URL.format(tmdb_id=tmdb_id)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Send welcome message and language selection."""
@@ -185,7 +183,7 @@ async def get_movie_recommendation(update: Update, context: ContextTypes.DEFAULT
 """
         
         # Create inline keyboard with watch button
-        watch_url = create_watch_url(title)
+        watch_url = create_watch_url(item)
         keyboard = [
             [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["watch_now"], url=watch_url)],
             [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["get_another"], callback_data="another")],
@@ -271,7 +269,7 @@ async def another_similar(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 """
     
     # Create inline keyboard with watch button
-    watch_url = create_watch_url(title)
+    watch_url = create_watch_url(item)
     keyboard = [
         [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["watch_now"], url=watch_url)],
         [InlineKeyboardButton(BUTTON_TEXTS[interface_lang]["get_another"], callback_data="another")],
