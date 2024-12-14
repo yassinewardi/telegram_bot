@@ -191,7 +191,7 @@ BUTTON_TEXTS = {
 }
 
 # URLs
-WATCH_URL = "https://h5.aoneroom.com/movies/{slug}?type=/movie/detail"
+WATCH_URL = "https://vidsrc.to/embed/movie/{tmdb_id}"
 
 # Messages
 MESSAGES = {
